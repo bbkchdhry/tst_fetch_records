@@ -326,10 +326,11 @@ public class HttpRequestBigmart {
             Thread.sleep(500);
         }
 
-        insertIntoMongo.sink(records);
+        if(records.size() > 0){
+            insertIntoMongo.sink(records);
 
-        sendMessageToMattermost("Task Completed" +
-                "\nTotal records fetched: " + total_records_fetched);
-
+            sendMessageToMattermost("Task Completed" +
+                    "\nTotal records fetched: " + total_records_fetched);
+        }
     }
 }
