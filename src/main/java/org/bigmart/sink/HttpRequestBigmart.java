@@ -152,6 +152,7 @@ public class HttpRequestBigmart {
             endDate = final_date;
 
             log.info("no lpcardno is recorded, initial phase!!!");
+            sendMessageToMattermost("no lpcardno is recorded, initial phase!!!");
 
             fetch_records("("+ lpcardno_fetched.stream().collect(Collectors.joining("','", "'", "'")) + ")");
 
@@ -165,6 +166,7 @@ public class HttpRequestBigmart {
                 endDate = final_date;
 
                 log.info("same value in both recorded and nlpcardno!!!");
+                sendMessageToMattermost("same value in both recorded and nlpcardno!!!");
 
                 fetch_records("("+ recorded_lpcardno.stream().collect(Collectors.joining("','", "'", "'")) + ")");
             }else{
@@ -175,12 +177,16 @@ public class HttpRequestBigmart {
                 log.info("new lpcardno is found!!!");
                 log.info("sending request for old lpcardno!!!");
 
+                sendMessageToMattermost("new lpcardno is found!!!");
+                sendMessageToMattermost("sending request for old lpcardno!!!");
+
                 fetch_records("("+ recorded_lpcardno.stream().collect(Collectors.joining("','", "'", "'")) + ")");
 
                 startDate = "01-Jan-18";
                 endDate = final_date;
 
                 log.info("sending request for new lpcardno!!!");
+                sendMessageToMattermost("sending request for new lpcardno!!!");
 
                 fetch_records("("+ lpcardno_fetched.stream().collect(Collectors.joining("','", "'", "'")) + ")");
                 write_lpcardno(lpcardno_filepath, lpcardno_fetched);
@@ -192,7 +198,6 @@ public class HttpRequestBigmart {
         List<Document> records = new ArrayList<>();
         log.info("start_date: " + startDate);
         log.info("end_date: " + endDate);
-        log.info("lpcardno: " + lpcardno);
 
         int request_count = 0;
         String error_msg = "";
