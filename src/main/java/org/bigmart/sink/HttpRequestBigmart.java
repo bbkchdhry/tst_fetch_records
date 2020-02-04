@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.bigmart.util.AES;
 import org.bigmart.util.FetchLpCardNo;
 import org.bigmart.util.MongoBullkInsert;
+import org.bigmart.util.Partition;
 import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -154,10 +155,11 @@ public class HttpRequestBigmart {
             log.info("no lpcardno is recorded, initial phase!!!");
             sendMessageToMattermost("no lpcardno is recorded, initial phase!!!");
 
-            fetch_records("("+ lpcardno_fetched.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+            for(List<String> lp_lst: Partition.ofSize(lpcardno_fetched, 500)){
+                fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
 
-            write_lpcardno(lpcardno_filepath, lpcardno_fetched);
-
+                write_lpcardno(lpcardno_filepath, lp_lst);
+            }
         }else{
             lpcardno_fetched.removeAll(recorded_lpcardno);
             if(lpcardno_fetched.size() == 0){
@@ -168,7 +170,9 @@ public class HttpRequestBigmart {
                 log.info("same value in both recorded and nlpcardno!!!");
                 sendMessageToMattermost("same value in both recorded and nlpcardno!!!");
 
-                fetch_records("("+ recorded_lpcardno.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+                for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
+                    fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+                }
             }else{
                 // new lpcardno found!!!
                 startDate = start_date;
@@ -180,7 +184,9 @@ public class HttpRequestBigmart {
                 sendMessageToMattermost("new lpcardno is found!!!");
                 sendMessageToMattermost("sending request for old lpcardno!!!");
 
-                fetch_records("("+ recorded_lpcardno.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+                for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
+                    fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+                }
 
                 startDate = "01-Jan-18";
                 endDate = final_date;
@@ -188,8 +194,11 @@ public class HttpRequestBigmart {
                 log.info("sending request for new lpcardno!!!");
                 sendMessageToMattermost("sending request for new lpcardno!!!");
 
-                fetch_records("("+ lpcardno_fetched.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-                write_lpcardno(lpcardno_filepath, lpcardno_fetched);
+                for(List<String> lp_lst: Partition.ofSize(lpcardno_fetched, 500)){
+                    fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+
+                    write_lpcardno(lpcardno_filepath, lp_lst);
+                }
             }
         }
     }
