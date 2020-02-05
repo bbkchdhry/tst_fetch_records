@@ -157,7 +157,7 @@ public class HttpRequestBigmart {
 
             for(List<String> lp_lst: Partition.ofSize(lpcardno_fetched, 500)){
                 fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-
+                log.info("lpcardno: " + lp_lst);
                 write_lpcardno(lpcardno_filepath, lp_lst);
             }
         }else{
@@ -172,6 +172,7 @@ public class HttpRequestBigmart {
 
                 for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
                     fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+                    log.info("lpcardno: " + lp_lst);
                 }
             }else{
                 // new lpcardno found!!!
@@ -186,6 +187,7 @@ public class HttpRequestBigmart {
 
                 for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
                     fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+                    log.info("lpcardno: " + lp_lst);
                 }
 
                 startDate = "01-Jan-18";
@@ -196,7 +198,7 @@ public class HttpRequestBigmart {
 
                 for(List<String> lp_lst: Partition.ofSize(lpcardno_fetched, 500)){
                     fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-
+                    log.info("lpcardno: " + lp_lst);
                     write_lpcardno(lpcardno_filepath, lp_lst);
                 }
             }
