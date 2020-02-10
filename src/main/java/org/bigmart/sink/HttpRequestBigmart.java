@@ -57,7 +57,6 @@ public class HttpRequestBigmart {
 
         startDate = System.getProperty("start_date");
         endDate = System.getProperty("end_date");
-        offset = Integer.parseInt(System.getProperty("offset", "0"));
         limit = Integer.parseInt(System.getProperty("limit", "5000"));
     }
 
@@ -172,7 +171,6 @@ public class HttpRequestBigmart {
 
                 for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
                     fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-                    log.info("lpcardno: " + lp_lst);
                 }
             }else{
                 // new lpcardno found!!!
@@ -187,7 +185,6 @@ public class HttpRequestBigmart {
 
                 for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
                     fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-                    log.info("lpcardno: " + lp_lst);
                 }
 
                 startDate = "01-Jan-18";
@@ -198,7 +195,6 @@ public class HttpRequestBigmart {
 
                 for(List<String> lp_lst: Partition.ofSize(lpcardno_fetched, 500)){
                     fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-                    log.info("lpcardno: " + lp_lst);
                     write_lpcardno(lpcardno_filepath, lp_lst);
                 }
             }
@@ -210,6 +206,7 @@ public class HttpRequestBigmart {
         log.info("start_date: " + startDate);
         log.info("end_date: " + endDate);
 
+        offset = Integer.parseInt(System.getProperty("offset", "0"));
         int request_count = 0;
         String error_msg = "";
         String status = "working";
