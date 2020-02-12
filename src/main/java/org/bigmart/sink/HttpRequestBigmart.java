@@ -217,7 +217,8 @@ public class HttpRequestBigmart {
                 sendMessageToMattermost("re-sending request for old lpcardno!!!");
 
                 for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
-                    fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+                    System.out.println("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+//                    fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
                 }
             } catch (ParseException e) {
                 e.printStackTrace();
