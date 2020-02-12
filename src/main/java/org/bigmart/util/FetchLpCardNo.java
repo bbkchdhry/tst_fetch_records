@@ -50,6 +50,7 @@ public class FetchLpCardNo {
     public List<String> fetch(String start_date, String end_date){
         System.out.println(start_date);
         System.out.println(end_date);
+        System.out.println(sourceConfig.getString("sink_collection"));
         // Getting the iterable object
         BasicDBObject gtQuery = new BasicDBObject();
         gtQuery.put("billdate", new BasicDBObject("$gte", start_date).append("$lt", end_date));
