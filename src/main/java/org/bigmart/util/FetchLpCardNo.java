@@ -48,9 +48,6 @@ public class FetchLpCardNo {
     }
 
     public List<String> fetch(String start_date, String end_date){
-        System.out.println(start_date);
-        System.out.println(end_date);
-        System.out.println(sourceConfig.getString("sink_collection"));
         // Getting the iterable object
         BasicDBObject gtQuery = new BasicDBObject();
         gtQuery.put("billdate", new BasicDBObject("$gte", start_date).append("$lt", end_date));
@@ -62,7 +59,6 @@ public class FetchLpCardNo {
             lpCardNoList.add(document.getString("lpcardno"));
         }
 
-        System.out.println(lpCardNoList.size());
         return lpCardNoList;
     }
 
@@ -71,6 +67,7 @@ public class FetchLpCardNo {
         FetchLpCardNo fetchLpCardNo = new FetchLpCardNo();
         fetchLpCardNo.connect(config);
 
+        fetchLpCardNo.fetch();
         fetchLpCardNo.fetch("2020-02-11", "2020-02-12");
 //        List<String> lpcardno_fetched = fetchLpCardNo.fetch();
 //        List<String> recorded_lpcardno = new ArrayList<>();
