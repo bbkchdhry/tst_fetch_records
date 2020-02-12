@@ -212,12 +212,14 @@ public class HttpRequestBigmart {
             System.out.println("yes");
             System.out.println(recorded_lpcardno.size());
             List<String> lpcardno_fetched = fetchLpCardNo.fetch(start_date, final_date);
+            System.out.println(lpcardno_fetched.size());
+            System.out.println(lpcardno_fetched);
             recorded_lpcardno.removeAll(lpcardno_fetched);
             System.out.println(recorded_lpcardno.size());
 
             log.info("re-sending request for old lpcardno!!!");
 
-            sendMessageToMattermost("re-sending request for old lpcardno!!!");
+//            sendMessageToMattermost("re-sending request for old lpcardno!!!");
 
 //            for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
 //                fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
