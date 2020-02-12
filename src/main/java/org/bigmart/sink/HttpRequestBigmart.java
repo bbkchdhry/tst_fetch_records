@@ -31,6 +31,7 @@ public class HttpRequestBigmart {
     private int offset;
     private String decrypt_key;
     private String env;
+    private String rerun;
     private FetchLpCardNo fetchLpCardNo = new FetchLpCardNo();
     private MongoBullkInsert insertIntoMongo = new MongoBullkInsert();
     private List<String> lpcardno_fetched;
@@ -65,6 +66,12 @@ public class HttpRequestBigmart {
             throw new RuntimeException("env property not defined, set env: dev/live");
         }else {
             env = System.getProperty("env");
+        }
+
+        if(System.getProperty("rerun") == null){
+            rerun = "no";
+        }else{
+            rerun = "yes";
         }
 
         if(env.equals("dev")){
@@ -118,19 +125,6 @@ public class HttpRequestBigmart {
     public void request() throws InterruptedException{
         sendMessageToMattermost("Started to fetch records from bigmart for environment: " + env);
 
-        List<String> recorded_lpcardno = new ArrayList<>();
-
-        try{
-            BufferedReader bfr = new BufferedReader(new FileReader(lpcardno_filepath));
-            String lpcardno;
-            while((lpcardno = bfr.readLine()) != null){
-                recorded_lpcardno.add(lpcardno);
-            }
-            bfr.close();
-        }catch (IOException e){
-            log.error(e.getMessage(), e);
-        }
-
         String start_date = startDate;
         String final_date = endDate;
 
@@ -146,58 +140,88 @@ public class HttpRequestBigmart {
             start_date = dateFormat.format(cal.getTime());
         }
 
-        if(recorded_lpcardno.size() == 0){
-            // no lpcardno is recorded!!!
-            startDate = "01-Jan-18";
-            endDate = final_date;
+        List<String> recorded_lpcardno = new ArrayList<>();
 
-            log.info("no lpcardno is recorded, initial phase!!!");
-            sendMessageToMattermost("no lpcardno is recorded, initial phase!!!");
-
-            for(List<String> lp_lst: Partition.ofSize(lpcardno_fetched, 500)){
-                fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-                log.info("lpcardno: " + lp_lst);
-                write_lpcardno(lpcardno_filepath, lp_lst);
+        try{
+            BufferedReader bfr = new BufferedReader(new FileReader(lpcardno_filepath));
+            String lpcardno;
+            while((lpcardno = bfr.readLine()) != null){
+                recorded_lpcardno.add(lpcardno);
             }
+            bfr.close();
+        }catch (IOException e){
+            log.error(e.getMessage(), e);
+        }
+
+        if(rerun.equals("no")){
+//            if(recorded_lpcardno.size() == 0){
+//                // no lpcardno is recorded!!!
+//                startDate = "01-Jan-18";
+//                endDate = final_date;
+//
+//                log.info("no lpcardno is recorded, initial phase!!!");
+//                sendMessageToMattermost("no lpcardno is recorded, initial phase!!!");
+//
+//                for(List<String> lp_lst: Partition.ofSize(lpcardno_fetched, 500)){
+//                    fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+//                    log.info("lpcardno: " + lp_lst);
+//                    write_lpcardno(lpcardno_filepath, lp_lst);
+//                }
+//            }else{
+//                lpcardno_fetched.removeAll(recorded_lpcardno);
+//                if(lpcardno_fetched.size() == 0){
+//                    // same value in both recorded and nlpcardno!!!
+//                    startDate = start_date;
+//                    endDate = final_date;
+//
+//                    log.info("same value in both recorded and nlpcardno!!!");
+//                    sendMessageToMattermost("same value in both recorded and nlpcardno!!!");
+//
+//                    for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
+//                        fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+//                    }
+//                }else{
+//                    // new lpcardno found!!!
+//                    startDate = start_date;
+//                    endDate = final_date;
+//
+//                    log.info("new lpcardno is found!!!");
+//                    log.info("sending request for old lpcardno!!!");
+//
+//                    sendMessageToMattermost("new lpcardno is found!!!");
+//                    sendMessageToMattermost("sending request for old lpcardno!!!");
+//
+//                    for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
+//                        fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+//                    }
+//
+//                    startDate = "01-Jan-18";
+//                    endDate = final_date;
+//
+//                    log.info("sending request for new lpcardno!!!");
+//                    sendMessageToMattermost("sending request for new lpcardno!!!");
+//
+//                    for(List<String> lp_lst: Partition.ofSize(lpcardno_fetched, 500)){
+//                        fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+//                        write_lpcardno(lpcardno_filepath, lp_lst);
+//                    }
+//                }
+//            }
+            System.out.println("yes");
         }else{
-            lpcardno_fetched.removeAll(recorded_lpcardno);
-            if(lpcardno_fetched.size() == 0){
-                // same value in both recorded and nlpcardno!!!
-                startDate = start_date;
-                endDate = final_date;
+            System.out.println("no");
+            System.out.println(recorded_lpcardno.size());
+            List<String> lpcardno_fetched = fetchLpCardNo.fetch(start_date, final_date);
+            recorded_lpcardno.removeAll(lpcardno_fetched);
+            System.out.println(recorded_lpcardno.size());
 
-                log.info("same value in both recorded and nlpcardno!!!");
-                sendMessageToMattermost("same value in both recorded and nlpcardno!!!");
+            log.info("re-sending request for old lpcardno!!!");
 
-                for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
-                    fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-                }
-            }else{
-                // new lpcardno found!!!
-                startDate = start_date;
-                endDate = final_date;
+            sendMessageToMattermost("re-sending request for old lpcardno!!!");
 
-                log.info("new lpcardno is found!!!");
-                log.info("sending request for old lpcardno!!!");
-
-                sendMessageToMattermost("new lpcardno is found!!!");
-                sendMessageToMattermost("sending request for old lpcardno!!!");
-
-                for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
-                    fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-                }
-
-                startDate = "01-Jan-18";
-                endDate = final_date;
-
-                log.info("sending request for new lpcardno!!!");
-                sendMessageToMattermost("sending request for new lpcardno!!!");
-
-                for(List<String> lp_lst: Partition.ofSize(lpcardno_fetched, 500)){
-                    fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-                    write_lpcardno(lpcardno_filepath, lp_lst);
-                }
-            }
+//            for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
+//                fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+//            }
         }
     }
 
