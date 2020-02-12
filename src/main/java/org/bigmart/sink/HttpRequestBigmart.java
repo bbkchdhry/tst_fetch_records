@@ -210,10 +210,10 @@ public class HttpRequestBigmart {
             }
         }else{
             try {
-                startDate = dateFormat2.format(dateFormat.parse(start_date));
-                endDate = dateFormat2.format(dateFormat.parse(final_date));
+                startDate = start_date;
+                endDate = final_date;
 
-                List<String> lp = fetchLpCardNo.fetch(startDate, endDate);
+                List<String> lp = fetchLpCardNo.fetch(dateFormat2.format(dateFormat.parse(start_date)), dateFormat2.format(dateFormat.parse(final_date)));
                 recorded_lpcardno.removeAll(lp);
                 log.info("re-sending request for old lpcardno!!!");
 
@@ -223,7 +223,7 @@ public class HttpRequestBigmart {
                     fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
                 }
             } catch (ParseException e) {
-                e.printStackTrace();
+                log.error(e.getMessage(), e);
             }
         }
     }
