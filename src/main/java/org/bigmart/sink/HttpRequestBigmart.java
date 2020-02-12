@@ -123,7 +123,7 @@ public class HttpRequestBigmart {
     }
 
     public void request() throws InterruptedException{
-        sendMessageToMattermost("Started to fetch records from bigmart for environment: " + env);
+//        sendMessageToMattermost("Started to fetch records from bigmart for environment: " + env);
 
         String start_date = startDate;
         String final_date = endDate;
@@ -207,9 +207,9 @@ public class HttpRequestBigmart {
 //                    }
 //                }
 //            }
-            System.out.println("yes");
-        }else{
             System.out.println("no");
+        }else{
+            System.out.println("yes");
             System.out.println(recorded_lpcardno.size());
             List<String> lpcardno_fetched = fetchLpCardNo.fetch(start_date, final_date);
             recorded_lpcardno.removeAll(lpcardno_fetched);
