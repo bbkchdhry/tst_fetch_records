@@ -40,6 +40,7 @@ public class HttpRequestBigmart {
     private Calendar cal = Calendar.getInstance();
     private final DateFormat dateFormat = new SimpleDateFormat("dd-MMM-yy");
     private final DateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd");
+    private long transaction_id;
 
     public HttpRequestBigmart() {
         // validating the system properties
@@ -126,6 +127,8 @@ public class HttpRequestBigmart {
     public void request() throws InterruptedException{
         sendMessageToMattermost("Started to fetch records from bigmart for environment: " + env);
 
+        transaction_id = new Date().getTime();
+
         String start_date = startDate;
         String final_date = endDate;
 
@@ -164,9 +167,10 @@ public class HttpRequestBigmart {
                 sendMessageToMattermost("no lpcardno is recorded, initial phase!!!");
 
                 for(List<String> lp_lst: Partition.ofSize(lpcardno_fetched, 500)){
-                    fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-                    log.info("lpcardno: " + lp_lst);
-                    write_lpcardno(lpcardno_filepath, lp_lst);
+                    boolean fetched = fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+                    if(fetched){
+                        write_lpcardno(lpcardno_filepath, lp_lst);
+                    }
                 }
             }else{
                 lpcardno_fetched.removeAll(recorded_lpcardno);
@@ -203,8 +207,10 @@ public class HttpRequestBigmart {
                     sendMessageToMattermost("sending request for new lpcardno!!!");
 
                     for(List<String> lp_lst: Partition.ofSize(lpcardno_fetched, 500)){
-                        fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-                        write_lpcardno(lpcardno_filepath, lp_lst);
+                        boolean fetched = fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+                        if(fetched){
+                            write_lpcardno(lpcardno_filepath, lp_lst);
+                        }
                     }
                 }
             }
@@ -228,7 +234,9 @@ public class HttpRequestBigmart {
         }
     }
 
-    private void fetch_records(String lpcardno) throws InterruptedException {
+    private boolean fetch_records(String lpcardno) throws InterruptedException {
+        boolean fetched = true;
+
         List<Document> records = new ArrayList<>();
         log.info("start_date: " + startDate);
         log.info("end_date: " + endDate);
@@ -237,7 +245,6 @@ public class HttpRequestBigmart {
         int request_count = 0;
         String error_msg = "";
         String status = "working";
-        long transaction_id = new Date().getTime();
         try {
             while (!(status.equals("done"))) {
 
@@ -292,6 +299,7 @@ public class HttpRequestBigmart {
                         request_count++;
                         error_msg = "column count didn't match with the count sent!!!\n" +
                                 "count=" + rs.getInt("count") +", column_count="+jr.length();
+                        fetched = false;
                         continue;
                     }
 
@@ -337,6 +345,7 @@ public class HttpRequestBigmart {
                                 log.error(e.getMessage(), e);
                                 error_msg = e.getMessage();
                                 request_count++;
+                                fetched = false;
                             }
                         }
                         records.add(Document.parse(record.toString()));
@@ -356,11 +365,13 @@ public class HttpRequestBigmart {
                     log.error(e.getMessage(), e);
                     error_msg = e.getMessage();
                     request_count++;
+                    fetched = false;
                     Thread.sleep(500);
                 }
             }
         } catch (Exception e) {
             log.error("HTTP call execution failed " + e.getMessage(), e);
+            fetched = false;
             Thread.sleep(500);
         } finally {
             Thread.sleep(500);
@@ -372,5 +383,6 @@ public class HttpRequestBigmart {
             sendMessageToMattermost("Task Completed" +
                     "\nTotal records fetched: " + total_records_fetched);
         }
+        return fetched;
     }
 }
