@@ -330,6 +330,10 @@ public class HttpRequestBigmart {
                                         item_struct.put("returnamt", Float.parseFloat(items_row[7]));
                                         item_struct.put("totaldiscountamt", Float.parseFloat(items_row[8]));
                                         item_struct.put("netamt", Float.parseFloat(items_row[9]));
+                                        item_struct.put("taxdescription", (items_row[10]));
+                                        item_struct.put("taxpercent", Float.parseFloat(items_row[11]));
+                                        item_struct.put("taxableamt", Float.parseFloat(items_row[12]));
+                                        item_struct.put("taxamt", Float.parseFloat(items_row[13]));
                                         // adding items in array list
                                         items.put(item_struct);
                                         record.put(column_name, items);
