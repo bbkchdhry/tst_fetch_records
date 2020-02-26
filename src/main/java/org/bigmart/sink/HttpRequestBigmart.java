@@ -334,11 +334,16 @@ public class HttpRequestBigmart {
                                         item_struct.put("taxpercent", Float.parseFloat(items_row[11]));
                                         item_struct.put("taxableamt", Float.parseFloat(items_row[12]));
                                         item_struct.put("taxamt", Float.parseFloat(items_row[13]));
-                                        item_struct.put("loyaltydiscount", items_row[14].equals("") ? 0: Float.parseFloat(items_row[14]));
+                                        try {
+                                            item_struct.put("loyaltydiscount", items_row[14].equals("") ? 0 : Float.parseFloat(items_row[14]));
+                                        }catch (ArrayIndexOutOfBoundsException e){
+                                            item_struct.put("loyaltydiscount", 0);
+                                            item_struct.put("promoname", "N/A");
+                                        }
                                         try {
                                             item_struct.put("promoname", items_row[15]);
                                         }catch (ArrayIndexOutOfBoundsException e){
-                                            item_struct.put("promoname", "");
+                                            item_struct.put("promoname", "N/A");
                                         }
                                         // adding items in array list
                                         items.put(item_struct);
