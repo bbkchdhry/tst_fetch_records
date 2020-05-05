@@ -232,6 +232,21 @@ public class HttpRequestBigmart {
                 log.error(e.getMessage(), e);
             }
         }
+        log.info("sending a trigger to calculate purchase history");
+        try {
+            URL url = new URL(config.getString("api_url"));
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("api-key", config.getString("api_key"));
+            int responseCode = con.getResponseCode();
+            if (responseCode == 200){
+                log.info("Response Code :: " + responseCode);
+            }else{
+                log.error("Response Code :: " + responseCode);
+            }
+        }catch (IOException e){
+            log.error(e.getMessage(), e);
+        }
     }
 
     private boolean fetch_records(String lpcardno) throws InterruptedException {
