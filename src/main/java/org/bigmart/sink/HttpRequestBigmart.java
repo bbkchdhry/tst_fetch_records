@@ -233,6 +233,7 @@ public class HttpRequestBigmart {
             }
         }
         log.info("sending a trigger to calculate purchase history");
+        sendMessageToMattermost("sending a trigger to calculate purchase history");
         try {
             URL url = new URL(config.getString("api_url"));
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -244,8 +245,10 @@ public class HttpRequestBigmart {
             }else{
                 log.error("Response Code :: " + responseCode);
             }
+            sendMessageToMattermost("Response Code :: " + responseCode);
         }catch (IOException e){
             log.error(e.getMessage(), e);
+            sendMessageToMattermost(e.getMessage());
         }
     }
 
