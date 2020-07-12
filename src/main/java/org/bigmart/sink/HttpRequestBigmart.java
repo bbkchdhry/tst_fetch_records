@@ -241,12 +241,15 @@ public class HttpRequestBigmart {
             con.setRequestMethod("GET");
             con.setRequestProperty("api-key", config.getString("api_key"));
             int responseCode = con.getResponseCode();
+            String responseMsg = con.getResponseMessage();
             if (responseCode == 200){
                 log.info("Response Code :: " + responseCode);
+                log.info("Response Msg :: " + responseMsg);
             }else{
                 log.error("Response Code :: " + responseCode);
+                log.info("Response Msg :: " + responseMsg);
             }
-            sendMessageToMattermost("Response Code :: " + responseCode);
+            sendMessageToMattermost("Response Code :: " + responseCode + ", Response Msg :: " + responseMsg);
         }catch (IOException e){
             log.error(e.getMessage(), e);
             sendMessageToMattermost(e.getMessage());
