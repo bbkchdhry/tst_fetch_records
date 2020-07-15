@@ -239,6 +239,7 @@ public class HttpRequestBigmart {
             URL url = new URL(config.getString("api_url"));
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
+            con.setConnectTimeout(300000);
             con.setRequestProperty("api-key", config.getString("api_key"));
             int responseCode = con.getResponseCode();
             String responseMsg = con.getResponseMessage();
