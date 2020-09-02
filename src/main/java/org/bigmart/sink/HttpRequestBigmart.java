@@ -73,7 +73,7 @@ public class HttpRequestBigmart {
         if(System.getProperty("rerun") == null){
             rerun = "no";
         }else{
-            rerun = "yes";
+            rerun = System.getProperty("rerun");
         }
 
         if(env.equals("dev")){
@@ -214,7 +214,31 @@ public class HttpRequestBigmart {
                     }
                 }
             }
-        }else{
+        }else if (rerun.equals("for_lp")){
+            try {
+                startDate = start_date;
+                endDate = final_date;
+
+                if(System.getProperty("lpcards") == null){
+                    throw new RuntimeException("No lpcards key found");
+                }
+
+                String lpcards = System.getProperty("lpcards");
+
+                List<String> lp = Arrays.asList(lpcards.split(", "));
+                recorded_lpcardno.removeAll(lp);
+                log.info("re-sending request for specific lpcards!!!");
+
+                sendMessageToMattermost("re-sending request for specific lpcardno!!!");
+
+                for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
+                    fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
+                }
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        else{
             try {
                 startDate = start_date;
                 endDate = final_date;
