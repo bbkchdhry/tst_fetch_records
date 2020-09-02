@@ -229,7 +229,7 @@ public class HttpRequestBigmart {
 
                 sendMessageToMattermost("re-sending request for specific lpcardno!!!");
 
-                fetch_records(lpcard);
+                fetch_records("('"+lpcard+"')");
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
@@ -333,6 +333,7 @@ public class HttpRequestBigmart {
                     log.info("\n############### Response Fetched ################\n");
 
                     JSONObject rs = new JSONObject(Objects.requireNonNull(AES.decrypt(content.toString(), decrypt_key)));
+                    System.out.println(rs.toString());
                     JSONArray jr = rs.getJSONArray("columns");
 
                     log.info("rs count: " + rs.getInt("count"));
