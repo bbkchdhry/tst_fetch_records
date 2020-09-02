@@ -219,21 +219,17 @@ public class HttpRequestBigmart {
                 startDate = start_date;
                 endDate = final_date;
 
-                if(System.getProperty("lpcards") == null){
-                    throw new RuntimeException("No lpcards key found");
+                if(System.getProperty("lpcard") == null){
+                    throw new RuntimeException("No lpcard key found");
                 }
 
-                String lpcards = System.getProperty("lpcards");
+                String lpcard = System.getProperty("lpcard");
 
-                List<String> lp = Arrays.asList(lpcards.split(", "));
-                recorded_lpcardno.removeAll(lp);
-                log.info("re-sending request for specific lpcards!!!");
+                log.info("re-sending request for specific lpcard!!!");
 
                 sendMessageToMattermost("re-sending request for specific lpcardno!!!");
 
-                for(List<String> lp_lst: Partition.ofSize(recorded_lpcardno, 500)){
-                    fetch_records("("+ lp_lst.stream().collect(Collectors.joining("','", "'", "'")) + ")");
-                }
+                fetch_records(lpcard);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
