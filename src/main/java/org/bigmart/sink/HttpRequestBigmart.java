@@ -2,6 +2,7 @@ package org.bigmart.sink;
 
 import com.typesafe.config.Config;
 import kong.unirest.Unirest;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.bigmart.util.AES;
 import org.bigmart.util.FetchLpCardNo;
@@ -13,6 +14,7 @@ import org.json.JSONObject;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -258,9 +260,17 @@ public class HttpRequestBigmart {
         try {
             URL url = new URL(config.getString("api_url"));
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+            String auth = config.getString("api_user") + ":" + config.getString("api_pass");
+            byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.UTF_8));
+
+            String authHeaderValue = "Basic " + new String(encodedAuth);
+
             con.setRequestMethod("GET");
             con.setConnectTimeout(300000);
-            con.setRequestProperty("api-key", config.getString("api_key"));
+            con.setRequestProperty("token", config.getString("api_token"));
+            con.setRequestProperty("env", config.getString("api_env"));
+            con.setRequestProperty("Authorization", authHeaderValue);
             int responseCode = con.getResponseCode();
             String responseMsg = con.getResponseMessage();
             if (responseCode == 200){
